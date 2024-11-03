@@ -1,0 +1,7 @@
+{{ define "__alert_content_message_full" }}{{ range . }}
+🚩 [{{ .Labels.severity }}] {{ .Labels.alertname }} 🚩
+📝 Sumary: {{ .Annotations.summary }}
+📖 Description: {{ .Annotations.description }}
+💣 Trigger time: {{ .StartsAt.Local.Format "15:04:05 MST 2006-01-02" }}
+🏷 Labels:
+{{ range .Labels.SortedPairs }}| {{ .Name }}: {{ .Value }} | {{ end }} {{ end }} {{ end }} {{ define "telegram.custom.message.full" }} {{ if gt (len .Alerts.Firing) 0 }} 🔥 {{ len .Alerts.Firing }} Alert(s) Firing: 🔥 {{ template "__alert_content_message_full" .Alerts.Firing }}{{ end }} {{ if gt (len .Alerts.Resolved) 0 }} ✅ {{ len .Alerts.Resolved }} Alert(s) Resolved: ✅ {{ template "__alert_content_message_full" .Alerts.Resolved }}{{ end }} {{ end }}

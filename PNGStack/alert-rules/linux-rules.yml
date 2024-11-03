@@ -1,0 +1,202 @@
+groups:
+  - name: Node Alerts
+    rules:
+    # Cảnh báo khi không thể truy cập node trong 2 phút
+    - alert: NodeDown
+      expr: up == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Node {{ $labels.instance }} is down"
+        description: "Node {{ $labels.instance }} has been down for more than 2 minutes."
+
+    # Cảnh báo khi bộ nhớ khả dụng dưới 10%
+    - alert: HostOutOfMemory
+      expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Host {{ $labels.instance }} is running out of memory"
+        description: "Available memory is less than 10%."
+
+    # Cảnh báo khi có áp lực bộ nhớ (page fault > 1000)
+    - alert: HostMemoryUnderMemoryPressure
+      expr: rate(node_vmstat_pgmajfault[5m]) > 1000
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Host {{ $labels.instance }} is under memory pressure"
+        description: "Major page faults rate is greater than 1000 per minute."
+
+    # Cảnh báo khi lưu lượng mạng đầu vào vượt quá 100 MB/s trong 5 phút
+    - alert: HostUnusualNetworkThroughputIn
+      expr: rate(node_network_receive_bytes_total[5m]) > 100 * 1024 * 1024
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High network input traffic on {{ $labels.instance }}"
+        description: "Network receive traffic is greater than 100MB/s."
+
+    # Cảnh báo khi lưu lượng mạng đầu ra vượt quá 100 MB/s trong 5 phút
+    - alert: HostUnusualNetworkThroughputOut
+      expr: rate(node_network_transmit_bytes_total[5m]) > 100 * 1024 * 1024
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High network output traffic on {{ $labels.instance }}"
+        description: "Network transmit traffic is greater than 100MB/s."
+
+    # Cảnh báo khi tỷ lệ đọc đĩa vượt quá 50 MB/s trong 5 phút
+    - alert: HostUnusualDiskReadRate
+      expr: rate(node_disk_read_bytes_total[5m]) > 50 * 1024 * 1024
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High disk read rate on {{ $labels.instance }}"
+        description: "Disk read rate is greater than 50MB/s."
+
+    # Cảnh báo khi tỷ lệ ghi đĩa vượt quá 50 MB/s trong 2 phút
+    - alert: HostUnusualDiskWriteRate
+      expr: rate(node_disk_written_bytes_total[5m]) > 50 * 1024 * 1024
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High disk write rate on {{ $labels.instance }}"
+        description: "Disk write rate is greater than 50MB/s."
+
+    # Cảnh báo khi không gian đĩa còn lại dưới 10%
+    - alert: HostOutOfDiskSpace
+      expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Low disk space on {{ $labels.instance }}"
+        description: "Available disk space is less than 10%."
+
+    # Cảnh báo khi dự đoán đĩa sẽ đầy trong 24 giờ
+    - alert: HostDiskWillFillIn24Hours
+      expr: predict_linear(node_filesystem_avail_bytes[6h], 24 * 3600) < 0
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Disk on {{ $labels.instance }} will fill in less than 24 hours"
+        description: "The disk is expected to fill up within 24 hours."
+
+    # Cảnh báo khi số inode khả dụng dưới 10%
+    - alert: HostOutOfInodes
+      expr: (node_filesystem_files_free / node_filesystem_files) * 100 < 10
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Low inode availability on {{ $labels.instance }}"
+        description: "Available inodes are less than 10%."
+
+    # Cảnh báo khi dự đoán inode sẽ đầy trong 24 giờ
+    - alert: HostInodesWillFillIn24Hours
+      expr: predict_linear(node_filesystem_files_free[6h], 24 * 3600) < 0
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Inodes on {{ $labels.instance }} will fill in less than 24 hours"
+        description: "The inodes are expected to fill up within 24 hours."
+
+    # Cảnh báo khi độ trễ đọc đĩa vượt quá 100 ms
+    - alert: HostUnusualDiskReadLatency
+      expr: rate(node_disk_read_time_seconds_total[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High disk read latency on {{ $labels.instance }}"
+        description: "Disk read latency is greater than 100ms."
+
+    # Cảnh báo khi độ trễ ghi đĩa vượt quá 100 ms
+    - alert: HostUnusualDiskWriteLatency
+      expr: rate(node_disk_write_time_seconds_total[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High disk write latency on {{ $labels.instance }}"
+        description: "Disk write latency is greater than 100ms."
+
+    # Cảnh báo khi tải CPU vượt quá 80%
+    - alert: HostHighCpuLoad
+      expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU load on {{ $labels.instance }}"
+        description: "CPU load is greater than 80%."
+
+    # Cảnh báo khi tỷ lệ steal CPU lớn hơn 10%
+    - alert: HostCpuStealNoisyNeighbor
+      expr: rate(node_cpu_seconds_total{mode="steal"}[5m]) * 100 > 10
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "CPU steal detected on {{ $labels.instance }}"
+        description: "CPU steal rate is greater than 10%."
+
+    # Cảnh báo khi số lượng context switching vượt quá 1000/s
+    - alert: HostContextSwitching
+      expr: rate(node_context_switches_total[5m]) > 1000
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High context switching on {{ $labels.instance }}"
+        description: "Context switching rate is greater than 1000 per second."
+
+    # Cảnh báo khi bộ nhớ swap đang đầy trên 80%
+    - alert: HostSwapIsFillingUp
+      expr: (node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes * 100 > 80
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Swap memory filling up on {{ $labels.instance }}"
+        description: "Swap usage is greater than 80%."
+
+    # Cảnh báo khi một service SystemD gặp sự cố
+    - alert: HostSystemdServiceCrashed
+      expr: count(node_systemd_unit_state{state="failed"}) > 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "SystemD service crash on {{ $labels.instance }}"
+        description: "A SystemD service has crashed."
+
+    # Cảnh báo khi nhiệt độ phần cứng vượt quá 75 độ C
+    - alert: HostPhysicalComponentTooHot
+      expr: node_hwmon_temp_celsius > 75
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High hardware temperature on {{ $labels.instance }}"
+        description: "Hardware temperature is greater than 75°C."
+
+    # Cảnh báo khi có cảnh báo nhiệt độ cao
+    - alert: HostNodeOvertemperatureAlarm
+      expr: node_hwmon_alarm > 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Overtemperature alarm on {{ $labels.instance }}"
+        description: "Node has triggered an overtemperature alarm."

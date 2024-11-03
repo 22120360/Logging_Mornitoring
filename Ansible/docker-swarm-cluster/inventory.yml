@@ -1,0 +1,26 @@
+int_swarm:
+  hosts:
+    manager-1:
+      ansible_host: 192.168.224.131
+      ansible_ssh_user: root
+    worker-1:
+      ansible_host:  192.168.224.132
+      ansible_ssh_user: root
+    worker-2:
+      ansible_host: 192.168.224.133
+      ansible_ssh_user: root
+
+int_swarm_managers:
+  hosts:
+    manager-1:
+      ansible_host: 192.168.224.131
+      ansible_ssh_user: root
+
+int_swarm_workers:
+  hosts:
+    worker-1:
+      ansible_host: 192.168.224.132
+      ansible_ssh_user: root
+    worker-2:
+      ansible_host: 192.168.224.133
+      ansible_ssh_user: root

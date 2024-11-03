@@ -1,0 +1,88 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    user: root
+    ports:
+      - "9090:9090"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alert-rules:/etc/prometheus/rules
+      - prometheus_data:/prometheus/data
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+      - --storage.tsdb.path=data/
+    networks:
+      - PrviNetwork
+    labels:
+      - "traefik.http.routers.prometheus-secure.rule=Host(`prometheus.lptdevops.website`)"
+      - "traefik.http.routers.prometheus-secure.entrypoints=websecure"
+      - "traefik.http.routers.prometheus-secure.tls=true"
+      - "traefik.http.routers.prometheus-secure.tls.certresolver=leresolver"
+
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.lptdevops.website`)"
+      - "traefik.http.routers.prometheus.entrypoints=web"
+      - "traefik.http.routers.prometheus.middlewares=redirect-to-https"
+
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  alert-manager:
+    image: prom/alertmanager
+    user: root
+    ports:
+      - "9093:9093"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./alertmanager:/etc/alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+    networks:
+      - PrviNetwork
+    labels:
+      - "traefik.http.routers.alert-manager-secure.rule=Host(`alert-manager.lptdevops.website`)"
+      - "traefik.http.routers.alert-manager-secure.entrypoints=websecure"
+      - "traefik.http.routers.alert-manager-secure.tls=true"
+      - "traefik.http.routers.alert-manager-secure.tls.certresolver=leresolver"
+
+      - "traefik.http.routers.alert-manager.rule=Host(`alert-manager.lptdevops.website`)"
+      - "traefik.http.routers.alert-manager.entrypoints=web"
+      - "traefik.http.routers.alert-manager.middlewares=redirect-to-https"
+
+      - "traefik.http.services.alert-manager.loadbalancer.server.port=9093"
+
+  grafana:
+    image: grafana/grafana
+    user: root
+    ports:
+      - "3000:3000"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - grafana_data:/var/lib/grafana
+    env_file:
+      - ./.grafana.secret
+    networks:
+      - PrviNetwork
+    labels:
+      - "traefik.http.routers.grafana-secure.rule=Host(`grafana.lptdevops.website`)"
+      - "traefik.http.routers.grafana-secure.entrypoints=websecure"
+      - "traefik.http.routers.grafana-secure.tls=true"
+      - "traefik.http.routers.grafana-secure.tls.certresolver=leresolver"
+
+      - "traefik.http.routers.grafana.rule=Host(`grafana.lptdevops.website`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.routers.grafana.middlewares=redirect-to-https"
+
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+networks:
+  PrviNetwork:
+    external: true
+
+volumes:
+  prometheus_data:
+  grafana_data:
