@@ -79,6 +79,31 @@ services:
 
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
+  loki:
+    image: grafana/loki:2.1.0
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - 3100:3100
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - loki_data:/loki
+    networks:
+      - PrviNetwork
+    labels:
+      - "traefik.http.routers.loki-secure.rule=Host(`loki.lptdevops.website`)"
+      - "traefik.http.routers.loki-secure.entrypoints=websecure"
+      - "traefik.http.routers.loki-secure.tls=true"
+      - "traefik.http.routers.loki-secure.tls.certresolver=leresolver"
+
+      - "traefik.http.routers.loki.rule=Host(`loki.lptdevops.website`)"
+      - "traefik.http.routers.loki.entrypoints=web"
+      - "traefik.http.routers.loki.middlewares=redirect-to-https"
+
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+  
 networks:
   PrviNetwork:
     external: true
@@ -86,3 +111,5 @@ networks:
 volumes:
   prometheus_data:
   grafana_data:
+  loki_data:
+

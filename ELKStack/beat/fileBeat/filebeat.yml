@@ -14,3 +14,4 @@ filebeat.inputs:
 
 output.logstash:
   hosts: ["logstash.lptdevops.website"]
+  ssl.enabled: true

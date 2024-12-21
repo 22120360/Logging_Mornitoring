@@ -6,3 +6,12 @@ datasources:
   url: https://prometheus.lptdevops.website
   access: proxy
   isDefault: true
+
+- name: Loki
+  type: loki
+  url: https://loki.lptdevops.website/
+  access: proxy
+  isDefault: true
+  basicAuth: false
+  version: 1
+  editable: false
