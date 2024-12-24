@@ -33,20 +33,6 @@ route:
 templates:
   - "./template.tmpl"
 
-time_intervals:
-  - name: workhours
-    time_intervals:
-      - weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-        location: 'Asia/Ho_Chi_Minh'
-        times:
-          - start_time: "08:00"
-            end_time: "18:00"
-      - weekdays: ["Saturday"]
-        location: 'Asia/Ho_Chi_Minh'
-        times:
-          - start_time: "08:00"
-            end_time: "12:00"
-
 receivers:
   - name: "email"
     email_configs:
