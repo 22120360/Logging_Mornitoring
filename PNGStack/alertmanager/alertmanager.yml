@@ -46,7 +46,7 @@ receivers:
 
   - name: 'slack-notifications'
     slack_configs:
-      - api_url: 'https://hooks.slack.com/services/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'
+      - api_url: 'https://hooks.slack.com/services/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'
         channel: '#mornitoring-png-stack'
         send_resolved: true
         icon_url: "https://avatars3.githubusercontent.com/u/3380462"

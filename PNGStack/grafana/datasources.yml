@@ -9,9 +9,9 @@ datasources:
 
 - name: Loki
   type: loki
-  url: https://loki.lptdevops.website/
+  url: https://loki.lptdevops.website
   access: proxy
-  isDefault: true
+  isDefault: false
   basicAuth: false
   version: 1
   editable: false

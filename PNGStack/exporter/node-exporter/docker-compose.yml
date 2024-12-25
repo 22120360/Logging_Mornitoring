@@ -11,9 +11,3 @@ services:
     restart: unless-stopped
     volumes:
       - "/:/host:ro,rslave"
-    networks:
-      - PrviNetwork
-
-networks:
-  PrviNetwork:
-    external: true

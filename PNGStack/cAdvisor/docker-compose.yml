@@ -1,0 +1,35 @@
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.45.0
+    container_name: cadvisor
+    command: 
+      - '--housekeeping_interval=120s'
+      - '--docker_only'
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    restart: always
+    ports:
+      - 2705:8080
+    networks:
+      - PrviNetwork
+    labels:
+      - "traefik.http.routers.cadvisor-secure.rule=Host(`cadvisor.lptdevops.website`)"
+      - "traefik.http.routers.cadvisor-secure.entrypoints=websecure"
+      - "traefik.http.routers.cadvisor-secure.tls=true"
+      - "traefik.http.routers.cadvisor-secure.tls.certresolver=leresolver"
+
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.lptdevops.website`)"
+      - "traefik.http.routers.cadvisor.entrypoints=web"
+      - "traefik.http.routers.cadvisor.middlewares=redirect-to-https"
+
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=2705"
+
+networks:
+  PrviNetwork:
+    external: true

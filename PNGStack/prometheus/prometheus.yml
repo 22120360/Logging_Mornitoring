@@ -15,7 +15,7 @@ scrape_configs:
   - job_name: "node_exporter"
     scrape_interval: 30s
     static_configs:
-      - targets: ["node_exporter:9100"] # Node exporter port
+      - targets: ["prometheus.lptdevops.website:9100"] # Node exporter port
         labels:
           hostname: PrometheusProd
           type: docker
@@ -24,3 +24,8 @@ scrape_configs:
         labels:
           hostname: TestProd
           type: docker
+
+  - job_name: 'cadvisor'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['cadvisor.lptdevops.website']
